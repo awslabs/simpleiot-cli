@@ -66,9 +66,10 @@ Before creating a backend, you need to make sure you have an AWS account created
 ---
 **NOTE**
 
-This will require downloading and setting up an account with AWS IAM Administrative Privileges. If you are not allowed to have AWS admin privileges, [see here](https://simpleiot.net/admin_privs) for the list of fine-grain privileges your account will need to be deployed.
+This will require downloading and setting up an account with AWS IAM Administrative Privileges. If you are not allowed to have AWS admin privileges, a list of fine-grain IAM privileges will be released along with the SimpleIOT back-end sources. These can be used to create only the privileges needed by the system.
 
 This is a one-time operation. Once configured, you may proceed with the following steps. You can configure multiple named profiles using the `aws config` command. During installation, you will be prompted to choose which profile you would like to use. If only one account is configured, it will be considered the _default_ profile.
+
 ---
 
 ### Step 2: Install pre-requisites

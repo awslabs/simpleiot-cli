@@ -402,3 +402,8 @@ sensordemo
 *.simpleiot
 invite.csv
 simpleiotmail.conf
+
+#
+# Ignore pypi artifacts
+#
+simpleiot-cli-*/**
