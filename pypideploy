@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Deploy to pypi or pypi-test.
+#
+# If the parameter is full or -full, we go to PyPi, otherwise we're going to PyPi test.
+#
+# Note that this assumes twine has been set up and there is access to the
+# pypi and pypi-test user-accounts in ~/.pypirc.
+#
+# Make sure you bump up the version number in setup.py otherwise the 'twine' upload phase
+# will fail.
+#
+# If deployed to PyPi-Test, you can do a local test install with:
+#
+# pip install --index-url https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple simpleiot-cli
+#
+# When deployed to PyPi, you can install using the normal "pip install simpleiot-cli" command.
+#
+# If on a clean, test machine, to remove all third party dependencies:
+#
+# After the installation:
+#    pip freeze > requirements.txt
+#    pip uninstall -r requirements.txt -y
+#
+# Note that this uninstalls EVERY python module, including those installed by other modules.
+# DO NOT DO THIS ON A DEVELOPMENT MACHINE!
+#
+if ! command -v "twine" &> /dev/null
+then
+    echo "'twine' could not be found. Please install, then rerun. Info: https://pypi.org/project/twine/"
+    exit
+fi
+
+rm -rf build
+rm -rf dist
+python3 setup.py sdist bdist_wheel
+
+if [[ $1 == "full" || $1 == "-full" || $1 == "--full" ]]; then
+    echo "Uploading to PyPi"
+    export IOT_DEPLOY_PYPI=1
+    twine upload --repository pypi dist/*
+else
+    echo "Uploading to PyPi Test"
+    export IOT_DEPLOY_PYPI=0
+    twine upload --repository pypitest dist/*
+fi
+echo "Done!"

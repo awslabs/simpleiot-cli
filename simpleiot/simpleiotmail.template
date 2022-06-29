@@ -1,0 +1,32 @@
+#
+# This is a template for the mail configuration file needed to send bulk 
+# invites. To use, copy this file, rename it to  'simpleiotmail.conf' in the
+# current directory.
+#
+# You may remove these comments from the actual configuration file.
+#
+# All key-values are the same across different services, as long as there is support
+# for SMTP and TLS encryption. 
+#
+# Please consult your SMTP mail provider for how to test against verified 
+# vs. unverified customer email addresses.
+#
+# To use, make sure you put the name of the service inside the square brackets
+# for example, [sendgrid] or [ses]. Note that you can have multiple such sections 
+# in a single mail config file and can then choose from the providers on the
+# command line.
+#
+# To invoke, use the command:
+#
+#     iot team bulkinvite add --via=sendgrid
+#
+# The system will look for the default input file 'invite.csv' containing
+# comma-separate email and username for the reciept.
+#
+[mail-provider]
+smtp_server={replace with DNS of SMTP server}
+smtp_username={SMTP username provided by email service}
+smtp_password={SMTP password provided by email service}
+from_email={email address to use in the 'from' field of invites}
+smtp_port=587
+
