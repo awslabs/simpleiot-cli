@@ -183,8 +183,9 @@ def _add_user(config, username, email):
             )
             result = True
     except ClientError as e:
+        temp_password = None
         code = e.response['Error']['Code']
-        if  code == "UsernameExistsException":
+        if code == "UsernameExistsException":
             print(f"ERROR: user {username} already exists.")
         elif code == "InvalidPasswordException":
             print(f"ERROR: password invalid. Please delete user and try again.")
