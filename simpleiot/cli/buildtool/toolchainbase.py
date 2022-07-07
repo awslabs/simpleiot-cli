@@ -107,12 +107,17 @@ class ToolChainBase():
             pass
 
     def install_path(self, base):
+        if type(base) != Path:
+            base = Path(base)
         install_path = Path(os.path.expanduser(base)) / self.key
         if not install_path.exists():
             os.makedirs(install_path)
         return install_path
 
     def exec_path(self, install_path):
+        if type(install_path) != Path:
+            install_path = Path(install_path)
+
         exec_path = install_path / self.executable
         return exec_path
 

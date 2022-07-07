@@ -18,6 +18,7 @@ from simpleiot.common.config import *
 import os
 from pathlib import Path
 import platform
+import traceback
 
 ARDUINO_TOOLCHAIN_CONFIG = "~/Library/Arduino15/arduino-cli.yaml"
 
@@ -91,7 +92,7 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                 if not self._file_exists("~/Library/Arduino15/arduino-cli.yaml"):
                     self._exec("arduino-cli config init --overwrite")
 
-                self.reset_mac(location)
+                self.reset_mac(location=location)
             else:
                 print(f"ERROR: non-local toolchains not supported.")
                 exit(1)
@@ -114,7 +115,6 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                     self._exec(f"curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | "
                                f"BINDIR={base} sh")
 
-                    self.reset_mac(location)
             else:
                 print(f"ERROR: non-local toolchains not supported.")
                 exit(1)
@@ -219,8 +219,8 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                     exit(1)
 
                 if self._file_exists(ARDUINO_TOOLCHAIN_CONFIG):
-                    print(f"WARNING: Arduino toolchain configuration file exists.")
-                    print(f"Please make a copy of {ARDUINO_TOOLCHAIN_CONFIG} then re-run install command.")
+                    print(f"WARNING: Arduino toolchain configuration file already exists.")
+                    print(f"Please move {ARDUINO_TOOLCHAIN_CONFIG} then re-run install command.")
                     exit(1)
 
                 install_exe = "arduino-cli"
@@ -251,13 +251,12 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
             if location == ToolchainLocation.LOCAL:
                 print(f"Local reset to factory-settings for {self.name} for Mac")
 
-                if self._file_exists(ARDUINO_TOOLCHAIN_CONFIG):
-                    print(f"WARNING: Arduino toolchain configuration file exists.")
-                    print(f"Please make a copy of {ARDUINO_TOOLCHAIN_CONFIG} then re-run install command.")
-                    exit(1)
+                install_path = self.install_path(base)
+                install_exe = self.exec_path(install_path)
+                if install_exe.exists():
+                    if not self._file_exists(ARDUINO_TOOLCHAIN_CONFIG):
+                        self._exec(f"{install_exe} config init --overwrite")
 
-                install_exe = self.exec_path(base)
-                if install_exe.exist():
                     self._exec(
                         f"{install_exe} config set board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json")
                     self._exec(f"{install_exe} config set library.enable_unsafe_install true")
@@ -307,10 +306,11 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
         return True
 
     def build_and_flash(self, base, dirpath, command):
-        exec = self.exec_path(base)
+        install_path = self.install_path(base)
+        exec = self.exec_path(install_path)
         full_command = f"{exec} {command}"
-        print(f"DIR: {dirpath}")
-        print(f"EXECUTING: {full_command}")
+        # print(f"DIR: {dirpath}")
+        # print(f"EXECUTING: {full_command}")
         # self._invoke_unbuffered(full_command)
         self._exec(full_command)
         return True

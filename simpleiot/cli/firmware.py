@@ -28,6 +28,7 @@ from shutil import which
 import requests
 import platform
 from simpleiot.cli.buildtool.toolchain import Toolchain
+from simpleiot.cli.toolchain import  LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION
 
 #######################
 
@@ -47,7 +48,7 @@ def firmware():
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
 @click.option("--name", help="Generator name", required=True)
-@click.option("--version", help="Firmware version", default="1.0.0")
+@click.option("--version", help="Firmware version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--wifi_ssid", "--ssid", help="Wifi SSID name", envvar="IOT_WIFI_SSID")
 @click.option("--wifi_password", "--password", help="Wifi Password", envvar="IOT_WIFI_PASSWORD")
 def generate(team, profile, project, serial, manufacturer, processor, os, name,
@@ -169,7 +170,7 @@ FQBN="esp32:esp32:m5stack-core2"
 @click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
-@click.option("--version", help="Firmware version", default="1.0.0")
+@click.option("--version", help="Firmware version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
@@ -218,20 +219,26 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
                     break
 
             if sketch_name:
-                sketch_dir = ops.path.join(source_dir, sketch_name)
-                print(f"SKETCH DIR: {sketch_dir}")
+                sketch_dir = Path(ops.path.join(source_dir, sketch_name))
+                # print(f"SKETCH DIR: {sketch_dir}")
 
-                toolchain = Toolchain()
-                command = f"compile -v -u -p {port} --fqbn {FQBN} {sketch_dir}"
-                toolchain.build_and_flash(base, manufacturer, processor, os, version, location, sketch_dir, command)
-                print("Done!")
+                from yaspin import yaspin
+
+                with yaspin(text="Building and Flashing... ", color="green") as spinner:
+                    toolchain = Toolchain()
+                    command = f"compile -v -u -p {port} --fqbn {FQBN} {sketch_dir}"
+                    toolchain.build_and_flash(base, manufacturer, processor, os, version, location, sketch_dir, command)
+                    spinner.ok("✅ ")
+                    print("Done!")
+
             else:
-                print("ERROR: could not locate sketch root in downloaded project. Invalid template layout")
+                print("ERROR: could not locate sketch root in downloaded project. Invalid template layout.")
 
         if clean_on_exit:
             import shutil
-            print(f"Cleaning dir: {source_dir}")
-            # shutil.rmtree(source_dir)
+            # print(f"Cleaning dir: {source_dir}")
+            print(f"Cleaning up...")
+            shutil.rmtree(source_dir)
 
     except Exception as e:
         print(f"ERROR flashing device: {str(e)}")
@@ -255,11 +262,13 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
 @firmware.command()
 @click.option("--demo", help="Demo directory", default="demo/m5gif")
 @click.option("--port", help="Serial port to flash device")
-def m5demo(demo, version, port):
+def m5demo(demo, port):
     """Flash a demo Sketch file to the target device.
     """
     try:
         import glob
+        from yaspin import yaspin
+
         tool_path = None
 
         pkg_dir = Path(ops.path.dirname(ops.path.abspath(inspect.getfile(inspect.currentframe()))))
@@ -306,7 +315,10 @@ def m5demo(demo, version, port):
                           f"0x10000 {bin_file}"
                 # print(f"Command: {command}")
 
-                ops.system(command)
+                with yaspin(text="Flashing... ", color="green") as spinner:
+                    ops.system(command)
+                    spinner.ok("✅ ")
+
             print("Done!")
 
     except Exception as e:
@@ -345,11 +357,12 @@ def get_port(port):
             device_list = []
             for d in devices:
                 device_list.append(d['name'])
-                device_name = questionary.select("Choose USB port to use: ", choices=device_list).ask()
-                if device_name:
-                    for dev in devices:
-                        if device_name == dev['name']:
-                            port = dev['port']
+
+            device_name = questionary.select("Choose USB port to use: ", choices=device_list).ask()
+            if device_name:
+                for dev in devices:
+                    if device_name == dev['name']:
+                        port = dev['port']
     return port
 
 

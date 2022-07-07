@@ -149,7 +149,7 @@ class Toolchain:
                 else:
                     print(f"ERROR: operating system not supported")
             else:
-                print(f"ERROR: unable to uninstall toolchain for specified device")
+                print(f"ERROR: No toolchain found. Unable to reset toolchain for specified device")
                 exit(1)
         except Exception as e:
             print(f"ERROR resetting tool to default settings: {str(e)}")

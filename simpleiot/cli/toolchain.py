@@ -49,6 +49,12 @@ import tempfile
 console = Console()
 toolchain_class = Toolchain()
 
+# Update this with latest ESP32 toolchain version getting installed.
+# For non-Arduino toolchains, we will need a central registry.
+#
+LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION="3.3.0"
+
+
 @click.group()
 def toolchain():
     """Project Template management"""
@@ -59,7 +65,7 @@ def toolchain():
 @click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
-@click.option("--version", help="Toolchain version", default="1.0.0")
+@click.option("--version", help="Toolchain version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
@@ -91,13 +97,17 @@ def install(base, alias, manufacturer, processor, os, version, location):
     try:
         location_enum = ToolchainLocation(location)
 
-        if alias:
-            result = toolchain_class.install_alias(base, alias)
-            # print(f"Install result: {result}")
-        else:
-            toolchain_class.install(base, manufacturer, processor, os, version, location_enum)
+        from yaspin import yaspin
 
-        toolchain_class.reset(base, manufacturer, processor, os, version, location_enum)
+        with yaspin(text="Installing... ", color="green") as spinner:
+            if alias:
+                result = toolchain_class.install_alias(base, alias)
+                # print(f"Install result: {result}")
+            else:
+                toolchain_class.install(base, manufacturer, processor, os, version, location_enum)
+
+            toolchain_class.reset(base, manufacturer, processor, os, version, location_enum)
+            spinner.ok("✅ ")
 
     except Exception as e:
         print(f"ERROR: {str(e)}")
@@ -129,7 +139,7 @@ def update(base, alias, manufacturer, processor, os, version, to):
 @click.option("--manufacturer", "--brand", help="Maunfacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
-@click.option("--version", help="Toolchain current version", default="1.0.0")
+@click.option("--version", help="Toolchain current version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
@@ -148,13 +158,18 @@ def uninstall(base, alias, manufacturer, processor, os, version, location):
     except Exception as e:
         print(f"ERROR: {str(e)}")
 
+#
+# NOTE: the version number must match the default version of the toolchain installed for the platform.
+# If it isn't installed, we'll have to go find it from a central registry. For now, however, we default to
+# the current latest version.
+#
 
 @toolchain.command()
 @click.option("--base", "--path", help="Base path of toolchain", default=Toolchain.base())
 @click.option("--manufacturer", "--brand", help="Maunfacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
-@click.option("--version", help="Toolchain current version", default="1.0.0")
+@click.option("--version", help="Toolchain current version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
