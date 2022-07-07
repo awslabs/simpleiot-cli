@@ -82,6 +82,7 @@ semver==2.13.0
 six==1.16.0
 sqlitedict==2.0.0
 stevedore==3.5.0
+termcolor==1.1.0
 toml==0.10.2
 tomli==2.0.1
 tqdm==4.64.0
@@ -93,4 +94,5 @@ virtualenv==20.14.1
 wcwidth==0.2.5
 webencodings==0.5.1
 websocket-client==1.3.2
+yaspin==2.1.0
 zipp==3.8.0
