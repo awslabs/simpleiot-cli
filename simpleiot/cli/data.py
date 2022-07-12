@@ -24,30 +24,56 @@ def data():
 @common_cli_params
 @click.option("--project", help="Project name", envvar="IOT_PROJECT", required=True)
 @click.option("--serial", help="Device Serial number", required=True)
-@click.option("--name", "--type", help="Data name", required=True)
+@click.option("--name", "--type", help="Data name", default='')
 @click.option("--desc", help="Data Description", default='')
 @click.option("--value", help="Data value", default='')
+@click.option("--data", help="Data series (name=value,name=value,...)", default='')
 @click.option("--position", help="Data position (lat, long, alt)", default='')
 @click.option("--dimension", help="Data dimension", default='')
-def set(team, profile, project, serial, name, desc, value, position, dimension):
+def set(team, profile, project, serial, name, desc, value, data, position, dimension):
     """Set value for a given data element
     \f
     Examples:
 
     $ iot data set --project "..." --serial "..." --name "..." --value "..."
+    $ iot data set --project "..." --serial "..." --data="name=value,name-value,..." ...
 
     To specify a default project, set the environment variable IOT_PROJECT to name of project.
     Doing so lets you skip the --project flag.
+
+    To specify a data series (i.e. multiple settings at the same time, use the "--data"
+    parameter. Values provided with the --name/--value parameter are then ignored.
     """
     try:
         config = preload_config(team, profile)
 
-        payload = {
-            "project": project,
-            "serial": serial,
-            "name": name,
-            "value": value
-        }
+        if data:
+            dataparams = {}
+            datalist = data.split(",")
+            for one in datalist:
+                kvlist = one.split("=")
+                try:
+                    if len(kvlist) == 2:
+                        n = kvlist[0].strip()
+                        v = kvlist[1].strip()
+                        dataparams[n] = v
+                except Exception as e:
+                    print(f"Invalid data parameter in [ {kvlist} ]. Skipping.")
+                    pass
+                data_str = ','.join('{}={}'.format(k,v) for k,v in dataparams.items())
+            payload = {
+                "project": project,
+                "serial": serial,
+                "data": data_str
+            }
+        else:
+            payload = {
+                "project": project,
+                "serial": serial,
+                "name": name,
+                "value": value
+            }
+
         if desc:
             payload["desc"] = desc
         if position:
@@ -65,11 +91,15 @@ def set(team, profile, project, serial, name, desc, value, position, dimension):
             table.add_column("Serial")
             table.add_column("Name")
             table.add_column("Value")
-            project_id = data.get("id", "***")
-            serial = data.get("serial", "***")
-            name = data.get("name", "***")
-            value = data.get("value", "***")
-            table.add_row(project_id, project, serial, name, value)
+            ret_data = data.get("data", None)
+            for item in ret_data:
+                project_id = item.get("id", "***")
+                serial = item.get("serial", "***")
+                name = item.get("name", "***")
+                value = item.get("value", "***")
+                project_name = item.get("project", "***")
+                table.add_row(project_id, project_name, serial, name, value)
+
         else:
             status = data.get("status", "***")
             message = data.get("message", "***")

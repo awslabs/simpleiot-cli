@@ -16,10 +16,6 @@
 #
 # Low-level:
 #   terminal - used to shell into the container -- for debugging only.
-#   bootstrap - bootstrap cloud install
-#   deploy - push and provision services
-#   dbsetup - load database and default data
-#   clean - erase cloud installation
 #
 import platform
 
@@ -42,8 +38,6 @@ import requests
 from pathlib import Path
 
 
-# DOCKER_IMAGE = "public.ecr.aws/d9e7p8m3/simpleiot-installer"
-# DOCKER_IMAGE = "framinlab/simpleiot"
 DOCKER_IMAGE = "amazon/simpleiot-installer"
 LOCAL_OUT_DIR = os.path.join(tempfile.gettempdir(), "simpleiot-layer")
 SAVED_TEAM_NAME_FILE = "simpleiot_last_install_team.txt"

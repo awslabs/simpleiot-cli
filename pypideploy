@@ -37,11 +37,9 @@ python3 setup.py sdist bdist_wheel
 
 if [[ $1 == "full" || $1 == "-full" || $1 == "--full" ]]; then
     echo "Uploading to PyPi"
-    export IOT_DEPLOY_PYPI=1
-    twine upload --repository pypi dist/*
+    export IOT_DEPLOY_PYPI=1; twine upload --repository pypi dist/*
 else
     echo "Uploading to PyPi Test"
-    export IOT_DEPLOY_PYPI=0
-    twine upload --repository pypitest dist/*
+    export IOT_DEPLOY_PYPI=0; twine upload --repository pypitest dist/*
 fi
 echo "Done!"
