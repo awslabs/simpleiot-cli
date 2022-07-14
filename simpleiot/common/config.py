@@ -489,7 +489,6 @@ def load_config(team=DEFAULT_TEAM, exit_on_error=True):
             config_data = json.load(infile)
     except Exception as e:
         print(f"ERROR: could not locate configuration data for project [{team}].")
-        exit(1)
 
     return config_data
 
