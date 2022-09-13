@@ -128,53 +128,53 @@ class ToolChainBase():
 
     # The following may be overridden for each platform.
     #
-    def install_windows(self, base, location):
+    def install_windows(self, base, location, verbose=False):
         """ Install this toolchain """
         raise NotImplementedError
 
-    def install_mac(self, base, location):
+    def install_mac(self, base, location, verbose=False):
         """ Install this toolchain """
         raise NotImplementedError
 
-    def install_unix(self, base, location):
+    def install_unix(self, base, location, verbose=False):
         """ Install this toolchain """
         raise NotImplementedError
 
-    def uninstall_windows(self, base, location):
+    def uninstall_windows(self, base, location, verbose=False):
         """ Uninstall this toolchain """
         raise NotImplementedError
 
-    def uninstall_mac(self, base, location):
+    def uninstall_mac(self, base, location, verbose=False):
         """ Uninstall this toolchain """
         raise NotImplementedError
 
-    def uninstall_unix(self, base, location):
+    def uninstall_unix(self, base, location, verbose=False):
         """ Uninstall this toolchain """
         raise NotImplementedError
 
-    def reset_windows(self, base, location):
+    def reset_windows(self, base, location, verbose=False):
         """ Reset this toolchain to its original factory settings. """
         raise NotImplementedError
 
-    def reset_mac(self, base, location):
+    def reset_mac(self, base, location, verbose=False):
         """ Reset this toolchain to its original factory settings. """
         raise NotImplementedError
 
-    def reset_unix(self, base, location):
+    def reset_unix(self, base, location, verbose=False):
         """ Reset this toolchain to its original factory settings. """
         raise NotImplementedError
 
     #
     # NOTE: this could be expanded to support additional build actions, etc.
     #
-    def build(self, base, dirpath, command):
+    def build(self, base, dirpath, command, verbose=False):
         """ User the tool spec to compile/link the code into binaries """
         raise NotImplementedError
 
-    def flash(self, base, dirpath, command):
+    def flash(self, base, dirpath, command, verbose=False):
         """ User the tool spec to flash the code into binaries """
         raise NotImplementedError
 
-    def build_and_flash(self, base, dirpath, command):
+    def build_and_flash(self, base, dirpath, command, verbose=False):
         """ User the tool spec to build and flash the source into binaries """
         raise NotImplementedError

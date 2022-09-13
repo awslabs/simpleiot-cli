@@ -40,9 +40,13 @@ def device():
 @click.option("--altitude", help="Device Altitude", type=float, default=None)
 @click.option("--status", help="Device Status", default=None)
 @click.option("--error", help="Device Error Message", default=None)
+@click.option("--arduino", help="Name of arduino project to generate", default=None)
+@click.option("--wifi_ssid", "--ssid", help="Wifi SSID name", envvar="IOT_WIFI_SSID")
+@click.option("--wifi_password", "--password", help="Wifi Password", envvar="IOT_WIFI_PASSWORD")
+
 def add(team, profile, project, model, serial, name, desc,
         position, latitude, longitude, altitude,
-        status, error):
+        status, error, arduino, wifi_ssid, wifi_password):
     """
     Provision a single device
     \f
@@ -117,8 +121,27 @@ def add(team, profile, project, model, serial, name, desc,
             table.add_column("List Status")
             table.add_column("Message")
             table.add_row(status, message)
-
         console.print(table)
+
+        iot_endpoint = config.get("iot_endpoint", "***")
+        print(f"Certificate directory: {device_dir}")
+        print(f"IOT Endpoint: {iot_endpoint}")
+
+        ## NOTE: this could be a generic output with device settings, so it invokes the toolchainbase class type
+        # and lets *THAT* do the code generation. This way, each toolchain can auto generate its own skeleton
+        # code and spit it out the way it's meant to.
+        # NOTE 2: The firmware build/flash command should accept a folder instead of a zip file, so it can
+        # compile and flash from an existing directory.
+        #
+
+        # If the arduino value is set, we will generate a full arduino project with a directory defined as the arduino
+        # name, an .ino file that includes the proper files and sets the settings, the certs and wifi files
+        # and a skeleton project that includes code to set the Datatypes defined for the project. All you have to do
+        # is go wire up the sensors to the right variables and it's good to go.
+        #
+        if arduino:
+            pass
+
         #print("NOTE: If this is a gateway, be sure to finish GG set-up from the device itself.")
     except Exception as e:
         print(f"ERROR: {str(e)}")

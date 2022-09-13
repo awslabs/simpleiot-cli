@@ -64,12 +64,13 @@ def toolchain():
 @click.option("--alias", "--nickname", help="Toolchain alias", default="esp32arloc")
 @click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
+@click.option("--os", "os_", help="Operating system name", default="arduino")
 @click.option("--version", help="Toolchain version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
+@click.option("--verbose", "-v", help="Verbose", is_flag=True, default=False)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
-def install(base, alias, manufacturer, processor, os, version, location):
+def install(base, alias, manufacturer, processor, os_, version, verbose, location):
     """
     Install the toolchain given manufacturer, processor, OS, and version.
     Defaults to the DevKit: Espressif:ESP32:Arduino:latest:Local.
@@ -96,17 +97,27 @@ def install(base, alias, manufacturer, processor, os, version, location):
     global toolchain_class
     try:
         location_enum = ToolchainLocation(location)
+        if verbose:
+            print(f"+ Location: {location_enum}")
 
         from yaspin import yaspin
 
         with yaspin(text="Installing... ", color="green") as spinner:
             if alias:
-                result = toolchain_class.install_alias(base, alias)
+                if verbose:
+                    print(f"+ Installing for alias {alias} to base {base}")
+
+                result = toolchain_class.install_alias(base, alias, verbose)
+                if verbose:
+                    print(f"+Install result: {result}")
                 # print(f"Install result: {result}")
             else:
-                toolchain_class.install(base, manufacturer, processor, os, version, location_enum)
+                print(f"+ Install base: {base} mfr: {manufacturer} proc: {processor} os: {os_} vers: {version}, loc: {location_enum}")
+                toolchain_class.install(base, manufacturer, processor, os_, version, location_enum, verbose)
 
-            toolchain_class.reset(base, manufacturer, processor, os, version, location_enum)
+            if verbose:
+                print("Resetting toolchain...")
+            toolchain_class.reset(base, manufacturer, processor, os_, version, location_enum, verbose)
             spinner.ok("✅ ")
 
     except Exception as e:
@@ -118,10 +129,11 @@ def install(base, alias, manufacturer, processor, os, version, location):
 @click.option("--alias", "--nickname", help="Toolchain alias", default=None)
 @click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
+@click.option("--os", "os_", help="Operating system name", default="arduino")
 @click.option("--version", help="Toolchain current version", default=None)
 @click.option("--to", help="Toolchain desired version", default=None)
-def update(base, alias, manufacturer, processor, os, version, to):
+@click.option("--verbose", "-v", help="Verbose", is_flag=True, default=False)
+def update(base, alias, manufacturer, processor, os_, version, to, verbose):
     """
     Update installed toolchain to given version.
     """
@@ -138,12 +150,13 @@ def update(base, alias, manufacturer, processor, os, version, to):
 @click.option("--alias", "--nickname", help="Toolchain alias")
 @click.option("--manufacturer", "--brand", help="Maunfacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
+@click.option("--os", "os_", help="Operating system name", default="arduino")
 @click.option("--version", help="Toolchain current version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
-def uninstall(base, alias, manufacturer, processor, os, version, location):
+@click.option("--verbose", "-v", help="Verbose", is_flag=True, default=False)
+def uninstall(base, alias, manufacturer, processor, os_, version, location, verbose):
     """
     Remove installed toolchain.
     """
@@ -152,9 +165,9 @@ def uninstall(base, alias, manufacturer, processor, os, version, location):
         location_enum = ToolchainLocation(location)
 
         if alias:
-            result = toolchain_class.uninstall(base, alias)
+            result = toolchain_class.uninstall(base, alias, verbose)
         else:
-            result = toolchain_class.uninstall(base, manufacturer, processor, os, version, location_enum)
+            result = toolchain_class.uninstall(base, manufacturer, processor, os_, version, location_enum, verbose)
     except Exception as e:
         print(f"ERROR: {str(e)}")
 
@@ -166,21 +179,22 @@ def uninstall(base, alias, manufacturer, processor, os, version, location):
 
 @toolchain.command()
 @click.option("--base", "--path", help="Base path of toolchain", default=Toolchain.base())
-@click.option("--manufacturer", "--brand", help="Maunfacturer name", default="espressif")
+@click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
+@click.option("--os", "os_", help="Operating system name", default="arduino")
 @click.option("--version", help="Toolchain current version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
               default="local")
-def reset(base, manufacturer, processor, os, version, location):
+@click.option("--verbose", "-v", help="Verbose", is_flag=True, default=False)
+def reset(base, manufacturer, processor, os_, version, location, verbose):
     """
     Remove installed toolchain.
     """
     global toolchain_class
     try:
         location_enum = ToolchainLocation(location)
-        result = toolchain_class.reset(base, manufacturer, processor, os, version, location_enum)
+        result = toolchain_class.reset(base, manufacturer, processor, os_, version, location_enum, verbose)
     except Exception as e:
         print(f"ERROR: {str(e)}")
 
@@ -188,15 +202,15 @@ def reset(base, manufacturer, processor, os, version, location):
 @toolchain.command()
 @click.option("--manufacturer", "--brand", help="Maunfacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
-def list(manufacturer, processor, os):
+@click.option("--os", "os_", help="Operating system name", default="arduino")
+def list(manufacturer, processor, os_):
     """
     List available and/or installed toolchains on this machine. This is loaded out of the
     .simpleiot/toolchain.json file.
     """
     global toolchain_class
     try:
-        print("NotImpl")
+        print("Not Implemented. Check back soon.")
 
     except Exception as e:
         print(f"ERROR: {str(e)}")
