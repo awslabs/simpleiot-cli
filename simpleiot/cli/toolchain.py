@@ -39,6 +39,10 @@ import requests
 import platform
 import tempfile
 
+# Update this with latest ESP32 toolchain version getting installed.
+# For non-Arduino toolchains, we will need a central registry.
+#
+LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION="3.3.0"
 
 #
 # NOTE: the toolchain directory starts with an underline. When listing all the teams installed
@@ -47,12 +51,7 @@ import tempfile
 # fall out of sync if someone messes with the directory.
 #
 console = Console()
-toolchain_class = Toolchain()
-
-# Update this with latest ESP32 toolchain version getting installed.
-# For non-Arduino toolchains, we will need a central registry.
-#
-LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION="3.3.0"
+toolchain_class = Toolchain(LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 
 
 @click.group()

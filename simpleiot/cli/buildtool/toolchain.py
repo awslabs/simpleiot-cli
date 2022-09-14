@@ -20,13 +20,16 @@ class Toolchain:
     toolchain_list = {}
     toolchain_alias = {}
 
-    def __init__(self):
+    # This needs to be generalized so we can support toolchains for other devices than Arduino
+    # Until then, it gets passed down.
+
+    def __init__(self, default_arduino_version):
         # NOTE: we import the import of implementation classes here so we don't create import loops.
         # This way, the implementation classes can call class methods without causing import loops.
         #
         from .ToolchainESP32Arduino_1_0_0 import ToolchainESP32Arduino_1_0_0
 
-        self._register(ToolchainESP32Arduino_1_0_0())
+        self._register(ToolchainESP32Arduino_1_0_0(default_arduino_version))
 
         # Add import/list of other toolchains here, for example:
         # self._register("microchip", "imx7", "freertos", "1.0.0", ToolchainIMX7FreeRTOS_1_0_0)

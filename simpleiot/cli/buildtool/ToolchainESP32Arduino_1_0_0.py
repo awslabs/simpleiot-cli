@@ -24,8 +24,12 @@ ARDUINO_TOOLCHAIN_CONFIG = "~/Library/Arduino15/arduino-cli.yaml"
 
 
 class ToolchainESP32Arduino_1_0_0(ToolChainBase):
-    def __init__(self):
+    def __init__(self, default_version):
         version_list = self.get_installed_toolchain_version()
+
+        # If not found, we default to the highest known version.
+        if not version_list:
+            version_list = default_version
 
         super(ToolchainESP32Arduino_1_0_0, self).__init__(
             "esp32arloc",
@@ -406,7 +410,7 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
     # If the tool hasn't been installed yet, we just return "***".
     #
     def get_installed_toolchain_version(self, install_path=None):
-        result = "***"
+        result = None
         try:
             import glob
             tool_path = None
