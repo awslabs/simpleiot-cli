@@ -28,7 +28,7 @@ from shutil import which
 import requests
 import platform
 from simpleiot.cli.buildtool.toolchain import Toolchain
-from simpleiot.cli.toolchain import  LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION
+from simpleiot.cli.toolchain import LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION
 
 #######################
 
@@ -225,7 +225,7 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
                 from yaspin import yaspin
 
                 with yaspin(text="Building and Flashing... ", color="green") as spinner:
-                    toolchain = Toolchain()
+                    toolchain = Toolchain(LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
                     command = f"compile -v -u -p {port} --fqbn {FQBN} {sketch_dir}"
                     toolchain.build_and_flash(base, manufacturer, processor, os, version, location, sketch_dir, command)
                     spinner.ok("✅ ")

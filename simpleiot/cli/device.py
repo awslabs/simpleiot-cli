@@ -123,9 +123,9 @@ def add(team, profile, project, model, serial, name, desc,
             table.add_row(status, message)
         console.print(table)
 
-        iot_endpoint = config.get("iot_endpoint", "***")
-        print(f"Certificate directory: {device_dir}")
-        print(f"IOT Endpoint: {iot_endpoint}")
+        # iot_endpoint = config.api_endpoint
+        # print(f"Certificate directory: {device_dir}")
+        # print(f"IOT Endpoint: {iot_endpoint}")
 
         ## NOTE: this could be a generic output with device settings, so it invokes the toolchainbase class type
         # and lets *THAT* do the code generation. This way, each toolchain can auto generate its own skeleton
@@ -145,6 +145,7 @@ def add(team, profile, project, model, serial, name, desc,
         #print("NOTE: If this is a gateway, be sure to finish GG set-up from the device itself.")
     except Exception as e:
         print(f"ERROR: {str(e)}")
+        traceback.print_exc()
 
 def write_device_cert_file(base, serial, suffix, data):
     try:
