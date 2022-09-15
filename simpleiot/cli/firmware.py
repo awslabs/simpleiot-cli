@@ -48,7 +48,7 @@ def firmware():
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
 @click.option("--os", help="Operating system name", default="arduino")
 @click.option("--name", help="Generator name", required=True)
-@click.option("--version", help="Firmware version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
+@click.option("--version", help="Firmware version", default="1.0.0")
 @click.option("--wifi_ssid", "--ssid", help="Wifi SSID name", envvar="IOT_WIFI_SSID")
 @click.option("--wifi_password", "--password", help="Wifi Password", envvar="IOT_WIFI_PASSWORD")
 def generate(team, profile, project, serial, manufacturer, processor, os, name,
