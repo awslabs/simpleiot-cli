@@ -227,7 +227,7 @@ class Toolchain:
             if installer:
                 if verbose:
                     print(f"+ Found toolchain subclass: {str(installer)}. Invoking.")
-                result = installer.build_and_flash(base, dirpath, command)
+                result = installer.build_and_flash(base, dirpath, command, verbose)
                 if verbose:
                     print(f"+ Toolchain build and flash result: {result}")
                 return result

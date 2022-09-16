@@ -213,9 +213,9 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                     self._exec(f"{install_exe} lib install ArduinoJson")
                     self._exec(f"{install_exe} lib install ArduinoMqttClient")
                     self._exec(f"{install_exe} lib install FastLED")
-                    self._exec(f"{install_exe} lib install TinyGPSPlus-ESP32")
                     self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/M5Core2.git")
-                    self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/UNIT_ENV.git")
+                    self._exec(f"{install_exe} lib install --git-url https://github.com/Tinyu-Zhao/TinyGPSPlus-ESP32.git")
+                    self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/M5Unit-ENV.git")
                     self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/UNIT_ENCODER.git")
                     self._exec(f"{install_exe} lib install --git-url https://github.com/aws-samples/arduino-aws-greengrass-iot.git")
                     self._exec(f"{install_exe} lib install --git-url https://github.com/awslabs/simpleiot-arduino.git")
@@ -253,9 +253,9 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                 self._exec(f"{install_exe} lib install ArduinoJson")
                 self._exec(f"{install_exe} lib install ArduinoMqttClient")
                 self._exec(f"{install_exe} lib install FastLED")
-                self._exec(f"{install_exe} lib install TinyGPSPlus-ESP32")
                 self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/M5Core2.git")
-                self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/UNIT_ENV.git")
+                self._exec(f"{install_exe} lib install --git-url https://github.com/Tinyu-Zhao/TinyGPSPlus-ESP32.git")
+                self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/M5Unit-ENV.git")
                 self._exec(f"{install_exe} lib install --git-url https://github.com/m5stack/UNIT_ENCODER.git")
                 self._exec(f"{install_exe} lib install --git-url https://github.com/aws-samples/arduino-aws-greengrass-iot.git")
                 self._exec(f"{install_exe} lib install --git-url https://github.com/awslabs/simpleiot-arduino.git")
@@ -328,7 +328,7 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                         print(f" + Exec: {cmd}")
                     self._exec(cmd)
 
-                    cmd = f"{install_exe} lib install TinyGPSPlus-ESP32"
+                    cmd = f"{install_exe} lib install --git-url https://github.com/Tinyu-Zhao/TinyGPSPlus-ESP32.git"
                     if verbose:
                         print(f" + Exec: {cmd}")
                     self._exec(cmd)
@@ -338,7 +338,7 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
                         print(f" + Exec: {cmd}")
                     self._exec(cmd)
 
-                    cmd = f"{install_exe} lib install --git-url https://github.com/m5stack/UNIT_ENV.git"
+                    cmd = f"{install_exe} lib install --git-url https://github.com/m5stack/M5Unit-ENV.git"
                     if verbose:
                         print(f" + Exec: {cmd}")
                     self._exec(cmd)
@@ -396,10 +396,12 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
         install_path = self.install_path(base)
         exec = self.exec_path(install_path)
         full_command = f"{exec} {command}"
+        if verbose:
+            print(f"+ Build and Flash with command: {full_command}")
         # print(f"DIR: {dirpath}")
         # print(f"EXECUTING: {full_command}")
         # self._invoke_unbuffered(full_command)
-        self._exec(full_command)
+        self._exec(full_command, verbose)
         return True
 
 

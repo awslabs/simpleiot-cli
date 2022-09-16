@@ -169,7 +169,7 @@ FQBN="esp32:esp32:m5stack-core2"
 @click.option("--base", "--path", help="Base path of toolchain", default=Toolchain.base())
 @click.option("--manufacturer", "--brand", help="Manufacturer name", default="espressif")
 @click.option("--processor", "--cpu", help="Processor type", default="esp32")
-@click.option("--os", help="Operating system name", default="arduino")
+@click.option("--os", "os_", help="Operating system name", default="arduino")
 @click.option("--version", help="Firmware version", default=LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
 @click.option("--location", help="Install location type",
               type=click.Choice(["local", "local_container", "cloud_container", "cloud_server"], case_sensitive=False),
@@ -177,19 +177,24 @@ FQBN="esp32:esp32:m5stack-core2"
 @click.option("--zip", help="Source zip file")
 @click.option("--dir", help="Source directory")
 @click.option("--port", help="Serial port to flash device")
-def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
+@click.option("--verbose", "-v", help="Verbose", is_flag=True, default=False)
+@click.option("--noclean", "-v", help="Do not clean temp directory on exit", is_flag=True, default=False)
+def flash(base, manufacturer, processor, os_, version, location, zip, dir, port, verbose, noclean):
     """Build and flash firmware to device
     """
     try:
-
-        # port = "/dev/cu.usbserial-01F9734D"
+        if verbose:
+            print(f"+ Scanning for USB ports. Please select one.")
         port = get_port(port)
         source_dir = None
-        clean_on_exit = False
+        clean_on_exit = not noclean
 
         if not port:
             print(f"ERROR: no --port specified")
             exit(1)
+
+        if verbose:
+            print(f"+ Port {port} selected.")
 
         if zip:
             # Note: in python 3.10, there was an ignore_cleanup_errors parameter added.
@@ -198,10 +203,15 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
             # Details: https://docs.python.org/3/library/tempfile.html#tempfile.TemporaryDirectory
             #
             source_dir = tempfile.mkdtemp(prefix="iot")
+            if verbose:
+                print(f"+ Extracting zip archive into: {source_dir}")
+
             # source_dir = source_temp_dir.name
             with zipfile.ZipFile(zip, "r") as zip_file:
                 zip_file.extractall(source_dir)
-            clean_on_exit = True
+
+            if verbose:
+                print(f"+ Extraction done")
 
         # If they've passed along a directory name instead of a zip file...
         if dir:
@@ -214,12 +224,18 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
             directories = ops.scandir(source_dir)
             sketch_name = None
             for entry in directories:
+                if verbose:
+                    print(f"+ Found directory entry: {entry.name}")
                 if entry.is_dir():
                     sketch_name = entry.name
+                    if verbose:
+                        print(f"+ Sketch name is: {sketch_name}")
                     break
 
             if sketch_name:
                 sketch_dir = Path(ops.path.join(source_dir, sketch_name))
+                if verbose:
+                    print(f"+ Sketch full path is: {str(sketch_dir)}")
                 # print(f"SKETCH DIR: {sketch_dir}")
 
                 from yaspin import yaspin
@@ -227,7 +243,12 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
                 with yaspin(text="Building and Flashing... ", color="green") as spinner:
                     toolchain = Toolchain(LATEST_ARDUINO_ESP32_TOOLCHAIN_VERSION)
                     command = f"compile -v -u -p {port} --fqbn {FQBN} {sketch_dir}"
-                    toolchain.build_and_flash(base, manufacturer, processor, os, version, location, sketch_dir, command)
+                    if verbose:
+                        print(f"+ Invoking build and flash with command: {command}")
+
+                    toolchain.build_and_flash(base, manufacturer, processor, os_, version, location,
+                                              sketch_dir, command, verbose)
+
                     spinner.ok("✅ ")
                     print("Done!")
 
@@ -235,6 +256,9 @@ def flash(base, manufacturer, processor, os, version, location, zip, dir, port):
                 print("ERROR: could not locate sketch root in downloaded project. Invalid template layout.")
 
         if clean_on_exit:
+            if verbose:
+                print(f"+ Cleaning source directory: {source_dir}")
+
             import shutil
             # print(f"Cleaning dir: {source_dir}")
             print(f"Cleaning up...")

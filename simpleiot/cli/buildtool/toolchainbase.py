@@ -84,10 +84,12 @@ class ToolChainBase():
             result = os.path.exists(expanded_path)
         return result
 
-    def _exec(self, command):
-        x = subprocess.run(command, shell=True, capture_output=True)
-        return x
-        # return os.system(command)
+    def _exec(self, command, verbose=False):
+        if verbose:
+            return os.system(command)
+        else:
+            x = subprocess.run(command, shell=True, capture_output=True)
+            return x
 
     def _invoke_unbuffered(self, command):
         try:
