@@ -28,7 +28,7 @@ docutils==0.18.1
 ecdsa==0.17.0
 esptool==4.1
 filelock==3.6.0
-future==0.18.2
+future==0.18.3
 idna==3.3
 importlib-metadata==4.11.3
 iniconfig==1.1.1
