@@ -383,7 +383,6 @@ iot.spec
 *.p12
 **/*.p12
 .p12
-*.bin
 
 #
 # Project test binaries
