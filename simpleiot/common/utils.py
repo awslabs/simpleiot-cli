@@ -29,6 +29,10 @@ import secrets
 import random
 import os
 from .config import *
+import unicodedata
+import re
+
+MAX_CHARACTERS_IN_SANITIZED_NAME = 100
 
 #
 # This needs to change so it uses different parameters depending on whether the
@@ -314,3 +318,26 @@ def unquote(s):
             result = s.strip()
 
     return result
+
+#
+# This is based on Django's 'slugify' function, removing characters that might interfere with
+# system operations. It automatically filters out punctuation, unicode, and leading/trailing
+# whitespace, dashes, and underscores. We convert unicode characters to their ASCII equivalents
+# (or strip them out) since the end-node devices are likely to be resource constrained and may
+# not be able to handle them. Also, if you want to use a user-entered value to create a directory
+# name. We do maintain case-sensitivity, however.
+#
+# Especially useful, also, is for terms that are embedded inside MQTT topic strings. There's
+# potential for malicious behavior if these values have embedded '#' and '*' wildcard characters.
+#
+# This function strips all that out. Note that we intentionally don't trap exceptions so they
+# bubble up to the caller.
+#
+# To avoid buffer-overflow, we also clamp the size to a maximum size.
+#
+def sanitize(value):
+    value = str(value)
+    value = value[0:MAX_CHARACTERS_IN_SANITIZED_NAME]
+    value = (unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii"))
+    value = re.sub(r"[^\w\s-]", "", value)
+    return re.sub(r"[-\s]+", "-", value).strip("-_")

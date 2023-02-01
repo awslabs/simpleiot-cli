@@ -411,6 +411,9 @@ class ToolchainESP32Arduino_1_0_0(ToolChainBase):
     # Each platform will have a different way of determining it.
     # If the tool hasn't been installed yet, we just return "***".
     #
+    # NOTE NOTE NOTE: This returns the ESPTool version, which will be different than the Arduino-CLI
+    # tool version.
+    #
     def get_installed_toolchain_version(self, install_path=None):
         result = None
         try:
