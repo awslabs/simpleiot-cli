@@ -53,7 +53,7 @@ py==1.11.0
 pyaes==1.6.1
 pycparser==2.21
 pyfiglet==0.8.post1
-Pygments==2.12.0
+Pygments==2.15.0
 PyJWT==2.4.0
 pykwalify==1.8.0
 pyparsing==3.0.9
