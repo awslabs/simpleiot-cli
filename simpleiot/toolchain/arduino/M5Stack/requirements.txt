@@ -5,7 +5,7 @@ importlib-resources==5.4.0
 packaging==21.2
 pkg-about==1.0.3
 prompt-toolkit==3.0.22
-Pygments==2.10.0
+Pygments==2.15.0
 pyinvoke==1.0.4
 pyparsing==2.4.7
 pyserial==3.5
